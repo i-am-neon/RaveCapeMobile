@@ -1,37 +1,33 @@
 import { BleManager } from 'react-native-ble-plx';
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
-export default function useBLEDevice() {
+export default function useBLEDevice(setConnected: (connected: boolean) => void, setIsScanning: (scanning: boolean) => void) {
   const manager = useMemo(() => new BleManager(), []);
 
-  const [isScanning, setIsScanning] = useState(false);
-
   const startScan = useCallback(() => {
+    setIsScanning(true);
     manager.startDeviceScan(null, null, (error, device) => {
       if (error) {
         console.error(error);
+        setIsScanning(false);
         return;
       }
 
-      if (device) {
-        console.log(`Found device: ${device.name}`);
-        // Optionally stop scanning when a specific device is found
-        // if (device.name === 'YourESP32DeviceName') manager.stopDeviceScan();
+      if (device && device.name === 'RaveCapeController') {
+        console.log(`Found and connecting to device: ${device.name}`);
+        manager.stopDeviceScan();
+        setIsScanning(false);
+        setConnected(true);
+        // Additional connection logic can go here if needed
       }
     });
-    setIsScanning(true);
-  }, [manager]);
-
-  const stopScan = useCallback(() => {
-    manager.stopDeviceScan();
-    setIsScanning(false);
-  }, [manager]);
+  }, [manager, setIsScanning, setConnected]);
 
   useEffect(() => {
     return () => {
-      stopScan(); // Clean up function
+      manager.stopDeviceScan();
     };
-  }, [stopScan]);
+  }, [manager]);
 
-  return { startScan, stopScan, isScanning };
+  return { startScan };
 }
