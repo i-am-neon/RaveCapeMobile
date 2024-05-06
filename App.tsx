@@ -1,117 +1,114 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useState, useEffect } from 'react';
+import { View, Text, Button, FlatList, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import useBLEDevice from './useBLEDevice'; // Assume this is your custom hook from earlier
+import requestBLEPermissions from './requestBLEPermissions';
 
-import React from 'react';
-import type { PropsWithChildren } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const App = () => {
+  const [devices, setDevices] = useState<any[]>([]);
+  const [connectedDevice, setConnectedDevice] = useState<any>(null);
+  const [characteristicValue, setCharacteristicValue] = useState<string>('');
+  const [inputValue, setInputValue] = useState<string>('');
+  const { startScan, stopScan, isScanning } = useBLEDevice();
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  useEffect(() => {
+    async function setup() {
+      const hasPermissions = await requestBLEPermissions();
+      if (!hasPermissions) {
+        console.error('Permissions not granted');
+        // Handle lack of permissions, e.g., notify the user or disable features
+      }
+    }
+    setup();
+  }, []);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  useEffect(() => {
+    // Assume a function that handles discovered devices and updates state
+    const handleDeviceDiscovered = (device: any) => {
+      if (!devices.some((d) => d.id === device.id)) {
+        setDevices([...devices, device]);
+      }
+    };
 
-function Section({ children, title }: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+    // Add event listeners for BLE events here
+    // For example, your BLE code might emit events that you can subscribe to
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+    return () => {
+      stopScan();
+      // Remove event listeners when the component unmounts
+    };
+  }, [stopScan, devices]);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const connectToDevice = (device: any) => {
+    // Assume a function that initiates a connection to a device
+    console.log('Connecting to device', device.name);
+    setConnectedDevice(device);
+    // Retrieve and set the initial characteristic value
+    setCharacteristicValue('Initial Value from Device'); // Placeholder
+  };
+
+  const updateCharacteristicValue = () => {
+    console.log('Updating characteristic value to:', inputValue);
+    // Code to write to the characteristic
+    setCharacteristicValue(inputValue);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <View style={styles.container}>
+      <Text style={styles.header}>BLE Device Scanner</Text>
+      {isScanning ? (
+        <Button title="Stop Scanning" onPress={stopScan} />
+      ) : (
+        <Button title="Start Scanning" onPress={startScan} />
+      )}
+      <FlatList
+        data={devices}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.listItem} onPress={() => connectToDevice(item)}>
+            <Text>{item.name || 'Unnamed device'}</Text>
+          </TouchableOpacity>
+        )}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+      {connectedDevice && (
+        <View>
+          <Text>Connected to: {connectedDevice.name}</Text>
+          <Text>Characteristic Value: {characteristicValue}</Text>
+          <TextInput
+            style={styles.input}
+            value={inputValue}
+            onChangeText={setInputValue}
+            placeholder="New Value"
+          />
+          <Button title="Update Value" onPress={updateCharacteristicValue} />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      )}
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  listItem: {
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
   },
-  highlight: {
-    fontWeight: '700',
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginVertical: 10,
+    paddingHorizontal: 10,
   },
 });
 
