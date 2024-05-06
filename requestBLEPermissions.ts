@@ -7,11 +7,6 @@ export default async function requestBLEPermissions(): Promise<boolean> {
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT
     ];
 
-    // Android 12+ requires explicit permission for scanning and connecting
-    if (Platform.Version >= 31) {
-      permissions.push(PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE);
-    }
-
     // Location permissions are necessary for BLE functionality in Android 10 and below
     if (Platform.Version < 31) {
       permissions.push(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
