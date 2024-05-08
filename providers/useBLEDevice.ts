@@ -1,14 +1,13 @@
-import { BleManager, Device } from 'react-native-ble-plx';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import base64 from 'react-native-base64';
+import { BleManager, Device } from 'react-native-ble-plx';
 
 const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
 
 const MESSAGE_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
 
-export default function useBLEDevice(setIsConnected: (isConnected: boolean) => void, setIsScanning: (scanning: boolean) => void) {
+export default function useBLEDevice(setConnectedDevice: (device: Device | null) => void, setIsScanning: (scanning: boolean) => void, connectedDevice: Device | null) {
   const manager = useMemo(() => new BleManager(), []);
-  const [connectedDevice, setConnectedDevice] = useState<Device>();
 
   async function sendBoxValue(value: boolean) {
     console.log('sending box value :>> ', value);
@@ -43,16 +42,15 @@ export default function useBLEDevice(setIsConnected: (isConnected: boolean) => v
 
     device
       .connect()
-      .then(device => {
+      .then(() => {
         setConnectedDevice(device);
-        setIsConnected(true);
         return device.discoverAllServicesAndCharacteristics();
       })
-      .then(device => {
+      .then(() => {
         //  Set what to do when DC is detected
-        manager.onDeviceDisconnected(device.id, (error, device) => {
+        manager.onDeviceDisconnected(device.id, () => {
           console.log('Device DC');
-          setIsConnected(false);
+          setConnectedDevice(null);
         });
 
         //Read inital values
@@ -115,7 +113,7 @@ export default function useBLEDevice(setIsConnected: (isConnected: boolean) => v
 
         console.log('Connection established');
       });
-  }, [manager, setIsConnected]);
+  }, [manager, setConnectedDevice]);
 
 
   const startScan = useCallback(() => {
@@ -131,12 +129,12 @@ export default function useBLEDevice(setIsConnected: (isConnected: boolean) => v
         console.log(`Found and connecting to device: ${device.name}`);
         manager.stopDeviceScan();
         setIsScanning(false);
-        setIsConnected(true);
+        setConnectedDevice(device);
         // Additional connection logic can go here if needed
         connectDevice(device);
       }
     });
-  }, [setIsScanning, manager, setIsConnected, connectDevice]);
+  }, [setIsScanning, manager, setConnectedDevice, connectDevice]);
 
 
   useEffect(() => {
