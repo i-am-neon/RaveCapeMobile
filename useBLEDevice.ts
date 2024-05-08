@@ -6,7 +6,6 @@ const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
 
 const MESSAGE_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
 
-
 export default function useBLEDevice(setIsConnected: (isConnected: boolean) => void, setIsScanning: (scanning: boolean) => void) {
   const manager = useMemo(() => new BleManager(), []);
   const [connectedDevice, setConnectedDevice] = useState<Device>();
@@ -22,6 +21,20 @@ export default function useBLEDevice(setIsConnected: (isConnected: boolean) => v
       console.log('Boxvalue changed to :', base64.decode(characteristic.value ?? ''));
     }).catch(error => {
       console.error('Error writing characteristic:', error);
+    });
+  }
+
+  async function sendMessage(message: string) {
+    console.log('⏳ sending message :>> ', message);
+    manager.writeCharacteristicWithResponseForDevice(
+      connectedDevice?.id ?? '',
+      SERVICE_UUID,
+      MESSAGE_UUID,
+      base64.encode(message.toString()),
+    ).then(characteristic => {
+      console.log('✅ message successfully sent:', base64.decode(characteristic.value ?? ''));
+    }).catch(error => {
+      console.error('Error sending message:', error);
     });
   }
 
@@ -54,7 +67,7 @@ export default function useBLEDevice(setIsConnected: (isConnected: boolean) => v
 
         //BoxValue
         device
-          .readCharacteristicForService(SERVICE_UUID, BOX_UUID)
+          .readCharacteristicForService(SERVICE_UUID, MESSAGE_UUID)
           .then(valenc => {
             // setBoxValue(StringToBool(base64.decode(valenc?.value)));
             console.log(
@@ -86,7 +99,7 @@ export default function useBLEDevice(setIsConnected: (isConnected: boolean) => v
         //BoxValue
         device.monitorCharacteristicForService(
           SERVICE_UUID,
-          BOX_UUID,
+          MESSAGE_UUID,
           (error, characteristic) => {
             if (characteristic?.value != null) {
               // setBoxValue(StringToBool(base64.decode(characteristic?.value)));
@@ -132,5 +145,5 @@ export default function useBLEDevice(setIsConnected: (isConnected: boolean) => v
     };
   }, [manager]);
 
-  return { startScan, sendBoxValue };
+  return { startScan, sendBoxValue, sendMessage };
 }

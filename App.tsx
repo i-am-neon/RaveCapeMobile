@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
 import useBLEDevice from './useBLEDevice'; // Custom hook for BLE device management
 import requestBLEPermissions from './requestBLEPermissions';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
@@ -7,8 +7,20 @@ import BouncyCheckbox from "react-native-bouncy-checkbox";
 const App = () => {
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const { startScan, sendBoxValue } = useBLEDevice(setIsConnected, setIsScanning);
+  const { startScan, sendBoxValue, sendMessage } = useBLEDevice(setIsConnected, setIsScanning);
   const [boxvalue, setBoxValue] = useState(false);
+
+  const sendRainbow = useCallback(async () => {
+    await sendMessage('rainbow');
+  }, [sendMessage]);
+
+  const sendBlue = useCallback(async () => {
+    await sendMessage('blue');
+  }, [sendMessage]);
+
+  const sendRed = useCallback(async () => {
+    await sendMessage('red');
+  }, [sendMessage]);
 
   useEffect(() => {
     async function setup() {
@@ -34,6 +46,9 @@ const App = () => {
           setBoxValue(!boxvalue);
         }}
       />
+      <Button onPress={sendRainbow} title='Rainbow' />
+      <Button onPress={sendBlue} title='Blue' />
+      <Button onPress={sendRed} title='Red' />
     </View>
   );
 };
