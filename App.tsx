@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { useBLE } from './providers/BLEProvider';
 import requestBLEPermissions from './requestBLEPermissions';
+import BrightnessSlider from './components/BrightnessSlider';
 
 const App = () => {
   const { connectedDevice, isScanning, sendMessage, startScan } = useBLE();
@@ -39,6 +40,7 @@ const App = () => {
       <Button onPress={sendRainbow} title='Rainbow' />
       <Button onPress={sendBlue} title='Blue' />
       <Button onPress={sendRed} title='Red' />
+      <BrightnessSlider />
     </View>
   );
 };
