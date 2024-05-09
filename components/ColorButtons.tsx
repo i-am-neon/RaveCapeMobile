@@ -26,7 +26,15 @@ const ColorButtons = () => {
   }, [sendMessage]);
 
   const flowOneColor = useCallback(async () => {
-    await sendMessage('flow_one_color:0x00FF00');
+    await sendMessage('flow_one_color:00FF00');
+  }, [sendMessage]);
+
+  const gradientBlueToPurple = useCallback(async () => {
+    await sendMessage('gradient:0000FF,800080');
+  }, [sendMessage]);
+
+  const gradientRedToYellow = useCallback(async () => {
+    await sendMessage('gradient:FF0000,FFFF00');
   }, [sendMessage]);
 
   return (
@@ -37,6 +45,8 @@ const ColorButtons = () => {
       <Button onPress={pulseOneColor} title='Pulse One Color' />
       <Button onPress={emanateOneColor} title='Emanate One Color' />
       <Button onPress={flowOneColor} title='Flow One Color' />
+      <Button onPress={gradientBlueToPurple} title='Gradient Blue to Purple' />
+      <Button onPress={gradientRedToYellow} title='Gradient Red to Yellow' />
     </View>
   );
 };
