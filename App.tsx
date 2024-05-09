@@ -1,23 +1,12 @@
-import React, { useCallback, useEffect } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import BrightnessSlider from './components/BrightnessSlider';
+import ColorButtons from './components/ColorButtons';
 import { useBLE } from './providers/BLEProvider';
 import requestBLEPermissions from './requestBLEPermissions';
-import BrightnessSlider from './components/BrightnessSlider';
 
 const App = () => {
-  const { connectedDevice, isScanning, sendMessage, startScan } = useBLE();
-
-  const sendRainbow = useCallback(async () => {
-    await sendMessage('rainbow');
-  }, [sendMessage]);
-
-  const sendBlue = useCallback(async () => {
-    await sendMessage('blue');
-  }, [sendMessage]);
-
-  const sendRed = useCallback(async () => {
-    await sendMessage('red');
-  }, [sendMessage]);
+  const { connectedDevice, isScanning, startScan } = useBLE();
 
   useEffect(() => {
     async function setup() {
@@ -37,9 +26,7 @@ const App = () => {
       <Text style={styles.header}>
         {isScanning ? "Scanning for devices..." : connectedDevice ? "Connected to ESP32" : "Not connected"}
       </Text>
-      <Button onPress={sendRainbow} title='Rainbow' />
-      <Button onPress={sendBlue} title='Blue' />
-      <Button onPress={sendRed} title='Red' />
+      <ColorButtons />
       <BrightnessSlider />
     </View>
   );
