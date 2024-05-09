@@ -63,20 +63,6 @@ export default function useBLEDevice(setConnectedDevice: (device: Device | null)
             console.log('Message:', base64.decode(valenc?.value ?? '') || 'No message found');
           });
 
-        //BoxValue
-        device
-          .readCharacteristicForService(SERVICE_UUID, MESSAGE_UUID)
-          .then(valenc => {
-            // setBoxValue(StringToBool(base64.decode(valenc?.value)));
-            console.log(
-              'Box Value:',
-              (base64.decode(valenc?.value ?? '')) ||
-              'No box value found',
-            );
-          });
-
-        //monitor values and tell what to do when receiving an update
-
         //Message
         device.monitorCharacteristicForService(
           SERVICE_UUID,

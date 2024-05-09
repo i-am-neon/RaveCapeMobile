@@ -17,11 +17,26 @@ const ColorButtons = () => {
     await sendMessage('red');
   }, [sendMessage]);
 
+  const pulseOneColor = useCallback(async () => {
+    await sendMessage('pulse_one_color:00FF00');
+  }, [sendMessage]);
+
+  const emanateOneColor = useCallback(async () => {
+    await sendMessage('emanate_one_color:0x00FF00');
+  }, [sendMessage]);
+
+  const flowOneColor = useCallback(async () => {
+    await sendMessage('flow_one_color:0x00FF00');
+  }, [sendMessage]);
+
   return (
     <View style={styles.buttonGrid}>
       <Button onPress={sendRainbowFlow} title='Rainbow Flow' />
       <Button onPress={sendBlue} title='Blue' />
       <Button onPress={sendRed} title='Red' />
+      <Button onPress={pulseOneColor} title='Pulse One Color' />
+      <Button onPress={emanateOneColor} title='Emanate One Color' />
+      <Button onPress={flowOneColor} title='Flow One Color' />
     </View>
   );
 };

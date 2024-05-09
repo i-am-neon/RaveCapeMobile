@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 import BrightnessSlider from './components/BrightnessSlider';
 import ColorButtons from './components/ColorButtons';
 import { useBLE } from './providers/BLEProvider';
@@ -26,6 +26,7 @@ const App = () => {
       <Text style={styles.header}>
         {isScanning ? "Scanning for devices..." : connectedDevice ? "Connected to ESP32" : "Not connected"}
       </Text>
+      {!connectedDevice && !isScanning && <Button title="Scan" onPress={startScan} disabled={isScanning} />}
       <ColorButtons />
       <BrightnessSlider />
     </View>
