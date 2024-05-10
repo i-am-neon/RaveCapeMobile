@@ -29,8 +29,8 @@ const ColorButtons = () => {
     await sendMessage('flow_one_color:00FF00');
   }, [sendMessage]);
 
-  const gradientBlueToPurple = useCallback(async () => {
-    await sendMessage('gradient:0000FF,800080');
+  const testRainbow = useCallback(async () => {
+    await sendMessage('gradient:FF0000,00FF00,0000FF');
   }, [sendMessage]);
 
   const gradientRedToYellow = useCallback(async () => {
@@ -45,8 +45,8 @@ const ColorButtons = () => {
     await sendMessage('gradient:0000FF,008080,A52A2A');
   }, [sendMessage]);
 
-  const gradientVomit = useCallback(async () => {
-    await sendMessage('gradient:833ab4,fd1d1d,fcb045');
+  const pulseSunset = useCallback(async () => {
+    await sendMessage('pulse:833ab4,fd1d1d,fcb045');
   }, [sendMessage]);
 
   return (
@@ -57,11 +57,11 @@ const ColorButtons = () => {
       <Button onPress={pulseOneColor} title='Pulse One Color' />
       <Button onPress={emanateOneColor} title='Emanate One Color' />
       <Button onPress={flowOneColor} title='Flow One Color' />
-      <Button onPress={gradientBlueToPurple} title='Gradient Blue to Purple' />
+      <Button onPress={testRainbow} title='🌈' />
       <Button onPress={gradientRedToYellow} title='Gradient Red to Yellow' />
       <Button onPress={gradientBlueToRedToGreen} title='Gradient Blue to Red to Green' />
       <Button onPress={gradientBlueToTealToBrown} title='Gradient Blue to Teal to Brown' />
-      <Button onPress={gradientVomit} title='Gradient 🌅' />
+      <Button onPress={pulseSunset} title='PULSE 🌅' />
     </View>
   );
 };
