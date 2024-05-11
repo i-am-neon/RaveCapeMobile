@@ -1,18 +1,21 @@
-import React, { createContext, useContext, useState, ReactNode, Context } from 'react';
-import useBLEDevice from './useBLEDevice';
-import { Device } from 'react-native-ble-plx';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
+import { BleManager, Device } from 'react-native-ble-plx';
+import base64 from 'react-native-base64';
+
+// Constants
+const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+const MESSAGE_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
 
 // Define the context value types
 interface BLEContextType {
   isScanning: boolean;
   connectedDevice: Device | null;
   startScan: () => void;
-  sendBoxValue: (value: boolean) => Promise<void>;
-  sendMessage: (message: string) => Promise<void>;
+  sendMessage: (message: string) => void;
 }
 
 // Creating the context
-const BLEContext: Context<BLEContextType | null> = createContext<BLEContextType | null>(null);
+const BLEContext = createContext<BLEContextType | null>(null);
 
 // Provider component props type
 interface BLEProviderProps {
@@ -23,14 +26,112 @@ interface BLEProviderProps {
 export const BLEProvider = ({ children }: BLEProviderProps) => {
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
+  const manager = useMemo(() => new BleManager(), []);
 
-  const bleServices = useBLEDevice(setConnectedDevice, setIsScanning, connectedDevice);
+  const connectDevice = useCallback((device: Device) => {
+    console.log('connecting to Device:', device.name);
 
-  // Ensuring the provided values match the expected types
+    device
+      .connect()
+      .then(() => {
+        setConnectedDevice(device);
+        return device.discoverAllServicesAndCharacteristics();
+      })
+      .then(() => {
+        //  Set what to do when DC is detected
+        manager.onDeviceDisconnected(device.id, () => {
+          console.log('Device DC');
+          setConnectedDevice(null);
+        });
+
+        //Read inital values
+
+        //Message
+        device
+          .readCharacteristicForService(SERVICE_UUID, MESSAGE_UUID)
+          .then(valenc => {
+            // setMessage(base64.decode(valenc?.value));
+            console.log('Message:', base64.decode(valenc?.value ?? '') || 'No message found');
+          });
+
+        //Message
+        device.monitorCharacteristicForService(
+          SERVICE_UUID,
+          MESSAGE_UUID,
+          (error, characteristic) => {
+            if (characteristic?.value != null) {
+              // setMessage(base64.decode(characteristic?.value));
+              console.log('Message update received: ', base64.decode(characteristic?.value));
+              console.log(
+                'Message update received: ',
+                base64.decode(characteristic?.value),
+              );
+            }
+          },
+          'messagetransaction',
+        );
+
+        //BoxValue
+        device.monitorCharacteristicForService(
+          SERVICE_UUID,
+          MESSAGE_UUID,
+          (error, characteristic) => {
+            if (characteristic?.value != null) {
+              // setBoxValue(StringToBool(base64.decode(characteristic?.value)));
+              console.log('Box Value update received: ', base64.decode(characteristic?.value));
+              console.log(
+                'Box Value update received: ',
+                base64.decode(characteristic?.value),
+              );
+            }
+          },
+          'boxtransaction',
+        );
+
+        console.log('Connection established');
+      });
+  }, [manager, setConnectedDevice]);
+
+  const startScan = useCallback(() => {
+    setIsScanning(true);
+    manager.startDeviceScan(null, null, (error, device) => {
+      if (error) {
+        console.error(error);
+        setIsScanning(false);
+        return;
+      }
+
+      if (device && device.name === 'RaveCapeController') {
+        console.log(`Found and connecting to device: ${device.name}`);
+        manager.stopDeviceScan();
+        connectDevice(device);
+      }
+    });
+  }, [connectDevice, manager]);
+
+  const sendMessage = useCallback((message: string) => {
+    console.log('⏳ sending message :>> ', message);
+    manager.writeCharacteristicWithResponseForDevice(
+      connectedDevice?.id ?? '',
+      SERVICE_UUID,
+      MESSAGE_UUID,
+      base64.encode(message.toString()),
+    ).then(characteristic => {
+      console.log('✅ message successfully sent:', base64.decode(characteristic.value ?? ''));
+    }).catch(error => {
+      console.error('Error sending message:', error);
+    });
+  }, [connectedDevice?.id, manager]);
+
+  useEffect(() => {
+    return () => manager.stopDeviceScan();
+  }, [manager]);
+
   const contextValue: BLEContextType = {
     isScanning,
     connectedDevice,
-    ...bleServices
+    startScan,
+    sendMessage,
   };
 
   return (

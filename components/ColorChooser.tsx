@@ -20,8 +20,6 @@ export default function ColorChooser() {
         <ColorPicker style={{ width: '70%' }} value='red' onComplete={onSelectColor}>
           <Preview hideText hideInitialColor />
           <Panel3 centerChannel='saturation' />
-          {/* <HueSlider />
-          <OpacitySlider /> */}
           <Swatches />
         </ColorPicker>
 
