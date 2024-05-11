@@ -4,6 +4,7 @@ import BrightnessSlider from './components/BrightnessSlider';
 import ColorButtons from './components/ColorButtons';
 import { useBLE } from './providers/BLEProvider';
 import requestBLEPermissions from './requestBLEPermissions';
+import ColorChooser from './components/ColorChooser';
 
 const App = () => {
   const { connectedDevice, isScanning, startScan } = useBLE();
@@ -29,6 +30,7 @@ const App = () => {
       {!connectedDevice && !isScanning && <Button title="Scan" onPress={startScan} disabled={isScanning} />}
       <ColorButtons />
       <BrightnessSlider />
+      <ColorChooser />
     </View>
   );
 };
