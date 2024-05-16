@@ -22,7 +22,11 @@ const ColorButtons = () => {
   }, [sendMessage]);
 
   const emanateOneColor = useCallback(async () => {
-    await sendMessage('emanate_one_color:0x00FF00');
+    await sendMessage('emanate_one_color:FF0000');
+  }, [sendMessage]);
+
+  const emanateMultColors = useCallback(async () => {
+    await sendMessage('emanate:FF0000,00FF00');
   }, [sendMessage]);
 
   const flowOneColor = useCallback(async () => {
@@ -30,7 +34,7 @@ const ColorButtons = () => {
   }, [sendMessage]);
 
   const testRainbow = useCallback(async () => {
-    await sendMessage('solid:FF0000,00FF00,0000FF');
+    await sendMessage('flow:FF0000,00FF00,0000FF');
   }, [sendMessage]);
 
   const gradientRedToYellow = useCallback(async () => {
@@ -56,6 +60,7 @@ const ColorButtons = () => {
       <Button onPress={sendRed} title='Red' />
       <Button onPress={pulseOneColor} title='Pulse One Color' />
       <Button onPress={emanateOneColor} title='Emanate One Color' />
+      <Button onPress={emanateMultColors} title='Emanate Mult Colors' />
       <Button onPress={flowOneColor} title='Flow One Color' />
       <Button onPress={testRainbow} title='🌈' />
       <Button onPress={gradientRedToYellow} title='Gradient Red to Yellow' />
