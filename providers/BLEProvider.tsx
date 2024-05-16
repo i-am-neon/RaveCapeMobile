@@ -105,6 +105,7 @@ export const BLEProvider = ({ children }: BLEProviderProps) => {
         console.log(`Found and connecting to device: ${device.name}`);
         manager.stopDeviceScan();
         connectDevice(device);
+        setIsScanning(false);
       }
     });
   }, [connectDevice, manager]);

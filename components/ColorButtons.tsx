@@ -30,19 +30,19 @@ const ColorButtons = () => {
   }, [sendMessage]);
 
   const testRainbow = useCallback(async () => {
-    await sendMessage('gradient:FF0000,00FF00,0000FF');
+    await sendMessage('solid:FF0000,00FF00,0000FF');
   }, [sendMessage]);
 
   const gradientRedToYellow = useCallback(async () => {
-    await sendMessage('gradient:FF0000,FFFF00');
+    await sendMessage('solid:FF0000,FFFF00');
   }, [sendMessage]);
 
   const gradientBlueToRedToGreen = useCallback(async () => {
-    await sendMessage('gradient:0000FF,FF0000,00FF00');
+    await sendMessage('solid:0000FF,FF0000,00FF00');
   }, [sendMessage]);
 
   const gradientBlueToTealToBrown = useCallback(async () => {
-    await sendMessage('gradient:0000FF,008080,A52A2A');
+    await sendMessage('solid:0000FF,008080,A52A2A');
   }, [sendMessage]);
 
   const pulseSunset = useCallback(async () => {
