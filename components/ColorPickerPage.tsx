@@ -9,7 +9,6 @@ interface ColorPickerPageProps {
 
 const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => {
   const onSelectColor = ({ hex }: { hex: string }) => {
-    // do something with the selected color.
     console.log(hex);
   };
 
@@ -18,9 +17,9 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
       <View style={styles.modalContent}>
         <Text style={styles.modalTitle}>{title}</Text>
         <ColorPicker style={styles.colorPicker} value='red' onComplete={onSelectColor}>
-          <Preview hideText hideInitialColor />
-          <Panel3 centerChannel='saturation' />
+          <Panel3 centerChannel='saturation' style={styles.panel3} />
           <Swatches />
+          <Preview hideText hideInitialColor />
         </ColorPicker>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
           <Text style={styles.closeButtonText}>Close</Text>
@@ -38,7 +37,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    flex: 1,
     width: '90%',
     padding: 20,
     backgroundColor: '#0f172a',
@@ -53,6 +51,9 @@ const styles = StyleSheet.create({
   colorPicker: {
     width: '100%',
     alignItems: 'center',
+  },
+  panel3: {
+    width: '100%', // Adjust to take full width
   },
   closeButton: {
     marginTop: 20,
