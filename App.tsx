@@ -10,6 +10,7 @@ import requestBLEPermissions from './requestBLEPermissions';
 import ColorChooser from './components/ColorChooser';
 import MainScreen from './components/MainScreen';
 import ChooseScreen from './components/ChooseScreen';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -30,28 +31,34 @@ const App = () => {
   }, [startScan]);
 
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarStyle: { display: 'none' }, // Hide the tab bar
-        }}>
-        <Tab.Screen name="ScreenOne" component={MainScreen} />
-        <Tab.Screen name="Choose" component={ChooseScreen} />
-        {/* <View style={styles.container}>
-          <Text style={styles.header}>
-            {isScanning ? "Scanning for devices..." : connectedDevice ? "Connected to ESP32" : "Not connected"}
-          </Text>
-          {!connectedDevice && !isScanning && <Button title="Scan" onPress={startScan} disabled={isScanning} />}
-          <ColorButtons />
-          <BrightnessSlider />
-          <ColorChooser />
-        </View> */}
-      </Tab.Navigator>
-    </NavigationContainer>
+    <SafeAreaView style={styles.safeArea}>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{
+            tabBarStyle: { display: 'none' }, // Hide the tab bar
+          }}>
+          <Tab.Screen name="ScreenOne" component={MainScreen} />
+          <Tab.Screen name="Choose" component={ChooseScreen} />
+          {/* <View style={styles.container}>
+            <Text style={styles.header}>
+              {isScanning ? "Scanning for devices..." : connectedDevice ? "Connected to ESP32" : "Not connected"}
+            </Text>
+            {!connectedDevice && !isScanning && <Button title="Scan" onPress={startScan} disabled={isScanning} />}
+            <ColorButtons />
+            <BrightnessSlider />
+            <ColorChooser />
+          </View> */}
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#ff0000', // Change this color to your desired background color
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
