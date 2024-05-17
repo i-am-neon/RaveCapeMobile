@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import ColorPickerPage from './ColorPickerPage';
+import BrightnessSlider from './BrightnessSlider';
 
 interface Item {
   id: string;
@@ -45,6 +46,12 @@ const ChooseScreen = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.imageContainer}>
+        <Image
+          source={require('../assets/rave_cape_icon_original.png')}
+          style={styles.imageAvatar}
+        />
+      </View>
       <FlatList
         data={items}
         renderItem={renderItem}
@@ -52,6 +59,7 @@ const ChooseScreen = () => {
         numColumns={numColumns}
         contentContainerStyle={styles.grid}
       />
+      <BrightnessSlider />
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -71,6 +79,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0f172a',
     paddingTop: 10,
+  },
+  imageContainer: {
+    width: 128,
+    height: 128,
+    borderRadius: 64,
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#475569',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 25,
+    marginBottom: 50,
+  },
+  imageAvatar: {
+    width: 128,
+    height: 128,
+    borderRadius: 64,
   },
   grid: {
     justifyContent: 'center',

@@ -30,12 +30,13 @@ const App = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <NavigationContainer>
+      {/* <NavigationContainer>
         <Tab.Navigator screenOptions={{ tabBarStyle: { display: 'none' } }}>
           <Tab.Screen name="ScreenOne" component={MainScreen} />
           <Tab.Screen name="Choose" component={ChooseScreen} />
         </Tab.Navigator>
-      </NavigationContainer>
+      </NavigationContainer> */}
+      <ChooseScreen />
     </SafeAreaView>
   );
 };
