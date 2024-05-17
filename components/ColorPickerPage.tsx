@@ -22,9 +22,13 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
 
   const handleBack = useCallback(() => {
     if (currentSlot > 0) {
+      const newColors = [...colors];
+      newColors[currentSlot] = '';
+      newColors[currentSlot - 1] = '';
+      setColors(newColors);
       setCurrentSlot(currentSlot - 1);
     }
-  }, [currentSlot]);
+  }, [currentSlot, colors]);
 
   const handleComplete = useCallback(() => {
     console.log(colors);
@@ -37,7 +41,7 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
         <Text style={styles.modalTitle}>{title}</Text>
         <View style={styles.colorSlotsContainer}>
           {colors.map((color, index) => (
-            <View key={index} style={styles.colorSlot}>
+            <View key={index} style={[styles.colorSlot, index === currentSlot && styles.activeSlot]}>
               <View
                 style={[
                   styles.colorPlaceholder,
@@ -52,7 +56,7 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
         </View>
         <ColorPicker style={styles.colorPicker} value='red' onComplete={onSelectColor}>
           <Panel3 centerChannel='saturation' style={styles.panel3} />
-          <Swatches />
+          <Swatches style={styles.swatch} />
           <Preview hideText hideInitialColor />
         </ColorPicker>
         <View style={styles.buttonContainer}>
@@ -61,9 +65,9 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
               <Text style={styles.buttonText}>Back</Text>
             </TouchableOpacity>
           )}
-          {currentSlot === 0 && (
+          {currentSlot > 0 && (
             <TouchableOpacity onPress={handleComplete} style={styles.completeButton}>
-              <Text style={styles.buttonText}>Complete</Text>
+              <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -102,6 +106,15 @@ const styles = StyleSheet.create({
   },
   colorSlot: {
     alignItems: 'center',
+    padding: 5,
+  },
+  activeSlot: {
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+    borderRadius: 5,
+  },
+  swatch: {
+    marginTop: 20,
   },
   colorPlaceholder: {
     width: 50,
