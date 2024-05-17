@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity, Modal, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity, Modal, Dimensions, Button } from 'react-native';
 import ColorPickerPage from './ColorPickerPage';
 import BrightnessSlider from './BrightnessSlider';
+import { useBLE } from '../providers/BLEProvider';
 
 interface Item {
   id: string;
@@ -26,6 +27,7 @@ const itemSize = width / numColumns - 20;
 const ChooseScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState('');
+  const { sendMessage } = useBLE();
 
   const openModal = useCallback((title: string) => {
     setSelectedTitle(title);
@@ -59,6 +61,9 @@ const ChooseScreen = () => {
         numColumns={numColumns}
         contentContainerStyle={styles.grid}
       />
+      <TouchableOpacity onPress={() => { sendMessage('rainbow_flow'); }} style={styles.button}>
+        <Text style={styles.text}>🌈</Text>
+      </TouchableOpacity>
       <BrightnessSlider />
       <Modal
         visible={modalVisible}
@@ -128,6 +133,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1e293b',
+  },
+  button: {
+    backgroundColor: 'transparent',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  text: {
+    fontSize: 16,
+    // center
+    textAlign: 'center',
   },
 });
 

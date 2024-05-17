@@ -123,10 +123,10 @@ export const BLEProvider = ({ children }: BLEProviderProps) => {
       base64.encode(message.toString()),
     ).then(characteristic => {
       console.log('✅ message successfully sent:', base64.decode(characteristic.value ?? ''));
-      const animation = message.split(':')[0];
-      const colors = message.split(':')[1].split(',');
-      setCurrentAnimation(animation);
-      setCurrentColors(colors);
+      // const animation = message.split(':')[0];
+      // const colors = message.split(':')[1].split(',');
+      // setCurrentAnimation(animation);
+      // setCurrentColors(colors);
     }).catch(error => {
       console.error('Error sending message:', error);
     });

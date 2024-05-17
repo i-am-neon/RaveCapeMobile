@@ -38,7 +38,7 @@ const BrightnessSlider: React.FC<BrightnessSliderProps> = ({ initialBrightness =
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255}
+        maximumValue={255 * .60}
         step={1}
         value={brightness}
         onValueChange={handleValueChange}

@@ -14,6 +14,7 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
   const { sendMessage } = useBLE();
 
   const onSelectColor = useCallback(({ hex }: { hex: string }) => {
+    console.log('hex :>> ', hex);
     const newColors = [...colors];
     newColors[currentSlot] = hex;
     setColors(newColors);
@@ -36,8 +37,14 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
     console.log('title :>> ', title);
     console.log('colors :>> ', colors);
 
-    // Filter out empty strings and remove "#"
-    const filteredColors = colors.filter(color => color !== '').map(color => color.replace('#', ''));
+
+    const filteredColors = colors
+      .filter((color: string) => color !== '')
+      .map((color: string) => {
+        const cleanColor = color.replace('#', '');
+        return cleanColor.length === 8 ? cleanColor.slice(0, -2) : cleanColor;
+      });
+
 
     // Send the colors to the device
     const message = title.toLowerCase() + ':' + filteredColors.join(',');
@@ -68,8 +75,12 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
           ))}
         </View>
         <ColorPicker style={styles.colorPicker} value='red' onComplete={onSelectColor}>
-          <Panel3 centerChannel='saturation' style={styles.panel3} />
-          <Swatches style={styles.swatch} />
+          <Panel3 centerChannel='hsl-saturation' style={styles.panel3} />
+          <Swatches
+            style={styles.swatch}
+            colors={['#FF0000', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#FF00FF', '#FF7F00', '#7F00FF']}
+          />
+
           <Preview hideText hideInitialColor />
         </ColorPicker>
         <View style={styles.buttonContainer}>
@@ -128,6 +139,7 @@ const styles = StyleSheet.create({
   },
   swatch: {
     marginTop: 20,
+    marginBottom: 20,
   },
   colorPlaceholder: {
     width: 50,
