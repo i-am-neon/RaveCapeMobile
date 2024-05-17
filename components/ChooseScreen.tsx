@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, TouchableOpacity, Modal, Dimensions } from 'react-native';
+import ColorPickerPage from './ColorPickerPage';
 
 interface Item {
   id: string;
@@ -25,15 +26,15 @@ const ChooseScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState('');
 
-  const openModal = (title: string) => {
+  const openModal = useCallback((title: string) => {
     setSelectedTitle(title);
     setModalVisible(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalVisible(false);
     setSelectedTitle('');
-  };
+  }, []);
 
   const renderItem = ({ item }: { item: Item }) => (
     <TouchableOpacity style={styles.item} onPress={() => openModal(item.title)}>
@@ -58,12 +59,7 @@ const ChooseScreen = () => {
         onRequestClose={closeModal}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{selectedTitle}</Text>
-            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+          <ColorPickerPage title={selectedTitle} onClose={closeModal} />
         </View>
       </Modal>
     </View>
@@ -104,27 +100,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1e293b',
-  },
-  modalContent: {
-    width: 300,
-    padding: 20,
-    backgroundColor: '#0f172a',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    color: '#ffffff',
-    marginBottom: 20,
-  },
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#1e293b',
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: '#ffffff',
   },
 });
 
