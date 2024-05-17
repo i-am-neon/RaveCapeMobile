@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, View, Button } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import BrightnessSlider from './components/BrightnessSlider';
 import ColorButtons from './components/ColorButtons';
@@ -37,6 +37,20 @@ const App = () => {
         </Tab.Navigator>
       </NavigationContainer> */}
       <ChooseScreen />
+      {
+        connectedDevice && !isScanning ? (
+          <Text style={styles.header}>Connected</Text>
+        ) : isScanning ? (
+          <View>
+            <Text style={styles.header}>Scanning for devices...</Text>
+          </View>
+        ) : (
+          <View>
+            <Text style={styles.header}>No device connected</Text>
+            <Button title="Scan for devices" onPress={startScan} />
+          </View>
+        )
+      }
     </SafeAreaView>
   );
 };
@@ -54,8 +68,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    color: '#ffffff',
+    textAlign: 'center',
+    paddingBottom: 10,
   },
 });
 

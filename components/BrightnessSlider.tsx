@@ -34,7 +34,7 @@ const BrightnessSlider: React.FC<BrightnessSliderProps> = ({ initialBrightness =
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Adjust Brightness</Text>
+      {/* <Text style={styles.label}>Adjust Brightness</Text> */}
       <Slider
         style={styles.slider}
         minimumValue={0}
@@ -42,10 +42,10 @@ const BrightnessSlider: React.FC<BrightnessSliderProps> = ({ initialBrightness =
         step={1}
         value={brightness}
         onValueChange={handleValueChange}
-        minimumTrackTintColor="#FF0000"
-        maximumTrackTintColor="#0000FF"
+        minimumTrackTintColor="#475569"
+        maximumTrackTintColor="#334155"
       />
-      <Text style={styles.value}>{`Brightness: ${Math.floor(brightness)}`}</Text>
+      {/* <Text style={styles.value}>{`Brightness: ${Math.floor(brightness)}`}</Text> */}
     </View>
   );
 };

@@ -39,7 +39,7 @@ const ChooseScreen = () => {
 
   const renderItem = ({ item }: { item: Item }) => (
     <TouchableOpacity style={styles.item} onPress={() => openModal(item.title)}>
-      <Image source={item.image} style={styles.image} />
+      {/* <Image source={item.image} style={styles.image} /> */}
       <Text style={styles.itemText}>{item.title}</Text>
     </TouchableOpacity>
   );

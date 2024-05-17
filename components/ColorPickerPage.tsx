@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import ColorPicker, { Panel3, Preview, Swatches } from 'reanimated-color-picker';
+import { useBLE } from '../providers/BLEProvider';
 
 interface ColorPickerPageProps {
   title: string;
@@ -10,6 +11,7 @@ interface ColorPickerPageProps {
 const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => {
   const [colors, setColors] = useState<string[]>(['', '', '']);
   const [currentSlot, setCurrentSlot] = useState<number>(0);
+  const { sendMessage } = useBLE();
 
   const onSelectColor = useCallback(({ hex }: { hex: string }) => {
     const newColors = [...colors];
@@ -31,9 +33,20 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
   }, [currentSlot, colors]);
 
   const handleComplete = useCallback(() => {
-    console.log(colors);
+    console.log('title :>> ', title);
+    console.log('colors :>> ', colors);
+
+    // Filter out empty strings and remove "#"
+    const filteredColors = colors.filter(color => color !== '').map(color => color.replace('#', ''));
+
+    // Send the colors to the device
+    const message = title.toLowerCase() + ':' + filteredColors.join(',');
+    console.log('message :>> ', message);
+    sendMessage(message);
     onClose();
-  }, [colors, onClose]);
+  }, [colors, onClose, sendMessage, title]);
+
+
 
   return (
     <View style={styles.modalContainer}>
