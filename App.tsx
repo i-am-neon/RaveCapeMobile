@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, SafeAreaView } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import BrightnessSlider from './components/BrightnessSlider';
 import ColorButtons from './components/ColorButtons';
@@ -10,7 +10,6 @@ import requestBLEPermissions from './requestBLEPermissions';
 import ColorChooser from './components/ColorChooser';
 import MainScreen from './components/MainScreen';
 import ChooseScreen from './components/ChooseScreen';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -19,12 +18,11 @@ const App = () => {
 
   useEffect(() => {
     async function setup() {
-      const hasPermissions = await requestBLEPermissions(); // Assumes this function is defined elsewhere
+      const hasPermissions = await requestBLEPermissions();
       if (hasPermissions) {
         startScan();
       } else {
         console.error('Permissions not granted');
-        // Handle lack of permissions, e.g., notify the user or disable features
       }
     }
     setup();
@@ -33,21 +31,9 @@ const App = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={{
-            tabBarStyle: { display: 'none' }, // Hide the tab bar
-          }}>
+        <Tab.Navigator screenOptions={{ tabBarStyle: { display: 'none' } }}>
           <Tab.Screen name="ScreenOne" component={MainScreen} />
           <Tab.Screen name="Choose" component={ChooseScreen} />
-          {/* <View style={styles.container}>
-            <Text style={styles.header}>
-              {isScanning ? "Scanning for devices..." : connectedDevice ? "Connected to ESP32" : "Not connected"}
-            </Text>
-            {!connectedDevice && !isScanning && <Button title="Scan" onPress={startScan} disabled={isScanning} />}
-            <ColorButtons />
-            <BrightnessSlider />
-            <ColorChooser />
-          </View> */}
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaView>
@@ -57,7 +43,7 @@ const App = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ff0000', // Change this color to your desired background color
+    backgroundColor: '#0f172a',
   },
   container: {
     flex: 1,
