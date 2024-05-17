@@ -1,7 +1,9 @@
 import React from 'react';
 import { Image, Text, View, StyleSheet } from 'react-native';
+import { useBLE } from '../providers/BLEProvider';
 
 const MainScreen = () => {
+  const { currentAnimation, currentColors } = useBLE();
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
@@ -11,6 +13,8 @@ const MainScreen = () => {
         />
       </View>
       <Text style={styles.text}>Main Screen</Text>
+      <Text style={styles.text}>{currentAnimation}</Text>
+      <Text style={styles.text}>{currentColors}</Text>
     </View>
   );
 };
@@ -41,6 +45,7 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 16,
     textAlign: 'center',
+    color: '#ffffff',
   },
 });
 

@@ -12,6 +12,8 @@ interface BLEContextType {
   connectedDevice: Device | null;
   startScan: () => void;
   sendMessage: (message: string) => void;
+  currentAnimation?: string;
+  currentColors?: string[];
 }
 
 // Creating the context
@@ -26,6 +28,8 @@ interface BLEProviderProps {
 export const BLEProvider = ({ children }: BLEProviderProps) => {
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
+  const [currentAnimation, setCurrentAnimation] = useState<string>();
+  const [currentColors, setCurrentColors] = useState<string[]>([]);
   const manager = useMemo(() => new BleManager(), []);
 
   const connectDevice = useCallback((device: Device) => {
@@ -119,6 +123,10 @@ export const BLEProvider = ({ children }: BLEProviderProps) => {
       base64.encode(message.toString()),
     ).then(characteristic => {
       console.log('✅ message successfully sent:', base64.decode(characteristic.value ?? ''));
+      const animation = message.split(':')[0];
+      const colors = message.split(':')[1].split(',');
+      setCurrentAnimation(animation);
+      setCurrentColors(colors);
     }).catch(error => {
       console.error('Error sending message:', error);
     });
@@ -133,6 +141,8 @@ export const BLEProvider = ({ children }: BLEProviderProps) => {
     connectedDevice,
     startScan,
     sendMessage,
+    currentAnimation,
+    currentColors,
   };
 
   return (
