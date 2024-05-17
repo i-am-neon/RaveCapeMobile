@@ -53,6 +53,10 @@ const ColorButtons = () => {
     await sendMessage('pulse:833ab4,fd1d1d,fcb045');
   }, [sendMessage]);
 
+  const fireworks = useCallback(async () => {
+    await sendMessage('fireworks');
+  }, [sendMessage]);
+
   return (
     <View style={styles.buttonGrid}>
       <Button onPress={sendRainbowFlow} title='Rainbow Flow' />
@@ -67,6 +71,7 @@ const ColorButtons = () => {
       <Button onPress={gradientBlueToRedToGreen} title='Gradient Blue to Red to Green' />
       <Button onPress={gradientBlueToTealToBrown} title='Gradient Blue to Teal to Brown' />
       <Button onPress={pulseSunset} title='PULSE 🌅' />
+      <Button onPress={fireworks} title='Fireworks' />
     </View>
   );
 };
