@@ -1,7 +1,8 @@
 import { CapeAnimation, parseCapeMessage, SHUFFLE, SHUFFLE_PREFIX } from '../cape/protocol';
 
-// The slider's range: 60% of the LEDs' 255 (more is too hot / drains the battery).
-export const MAX_BRIGHTNESS = Math.floor(255 * 0.6); // 153
+// The slider's full range. Full brightness is safe for the power banks because the firmware
+// caps every strip at the power of the rainbow at full brightness, whatever the slider says.
+export const MAX_BRIGHTNESS = 255;
 export const DEFAULT_ANIMATION: CapeAnimation = { kind: 'rainbow_flow' };
 
 export function clampBrightness(value: number): number {

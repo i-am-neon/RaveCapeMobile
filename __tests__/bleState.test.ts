@@ -4,15 +4,16 @@ import { applyMessage, clampBrightness, DEFAULT_ANIMATION, MAX_BRIGHTNESS } from
 const initial = { animation: DEFAULT_ANIMATION, brightness: MAX_BRIGHTNESS, shuffling: false };
 
 describe('clampBrightness', () => {
-  it('clamps to 0..153 and floors', () => {
-    expect(MAX_BRIGHTNESS).toBe(153);
+  it('clamps to 0..255 and floors', () => {
+    expect(MAX_BRIGHTNESS).toBe(255);
     expect(clampBrightness(-5)).toBe(0);
     expect(clampBrightness(0)).toBe(0);
     expect(clampBrightness(77.9)).toBe(77);
     expect(clampBrightness(153)).toBe(153);
-    expect(clampBrightness(255)).toBe(153);
-    expect(clampBrightness(Infinity)).toBe(153);
-    expect(clampBrightness(NaN)).toBe(153);
+    expect(clampBrightness(255)).toBe(255);
+    expect(clampBrightness(300)).toBe(255);
+    expect(clampBrightness(Infinity)).toBe(255);
+    expect(clampBrightness(NaN)).toBe(255);
   });
 });
 
@@ -34,7 +35,7 @@ describe('applyMessage', () => {
     const dim = applyMessage(spooky, 'brightness:40');
     expect(dim.brightness).toBe(40);
     expect(dim.animation).toEqual({ kind: 'spooky', id: 'reaper' });
-    expect(applyMessage(dim, 'brightness:999').brightness).toBe(153);
+    expect(applyMessage(dim, 'brightness:999').brightness).toBe(255);
     expect(applyMessage(dim, 'brightness:-3').brightness).toBe(0);
     expect(applyMessage(dim, 'brightness:abc')).toBe(dim);
   });

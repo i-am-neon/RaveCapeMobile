@@ -83,7 +83,7 @@ describe('BLEProvider', () => {
 
   it('boots into rainbow at max brightness and scans for RaveCapeController only', async () => {
     expect(ble.currentAnimation).toEqual({ kind: 'rainbow_flow' });
-    expect(ble.brightness).toBe(153);
+    expect(ble.brightness).toBe(255);
     ReactTestRenderer.act(() => ble.startScan());
     expect(ble.isScanning).toBe(true);
     ReactTestRenderer.act(() => scanCallback(null, { name: 'Other', id: 'z' }));
@@ -233,7 +233,7 @@ describe('BLEProvider', () => {
     ReactTestRenderer.act(() => ble.setBrightness(50));
     ReactTestRenderer.act(() => ble.setBrightness(60));
     ReactTestRenderer.act(() => ble.setBrightness(9999));
-    expect(ble.brightness).toBe(153);
+    expect(ble.brightness).toBe(255);
     expect(mockManager.writeCharacteristicWithResponseForDevice).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => ble.setBrightness(-20));
     expect(ble.brightness).toBe(0);
