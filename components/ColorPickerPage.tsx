@@ -1,102 +1,107 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import ColorPicker, { Panel3, Preview, Swatches } from 'reanimated-color-picker';
+import { ColorAnimation } from '../cape/protocol';
 import { useBLE } from '../providers/BLEProvider';
+import { buildColorMessage } from '../logic/colorMessage';
+import { normalizeHex } from '../logic/strokeColor';
+import { HALLOWEEN_PALETTE } from './palette';
+import { ACCENT, TEXT, TEXT_DIM, TILE_BG, TILE_BORDER } from './theme';
 
 interface ColorPickerPageProps {
+  animation: ColorAnimation;
   title: string;
+  initialColors?: string[];
   onClose: () => void;
 }
 
-const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => {
-  const [colors, setColors] = useState<string[]>(['', '', '']);
+// Inline editor shown inside the Custom pane: 1 required + 2 optional colors, then
+// Apply sends `name:hex,hex`.
+const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ animation, title, initialColors, onClose }) => {
+  const [colors, setColors] = useState<string[]>(() => {
+    const start = (initialColors ?? []).slice(0, 3);
+    return [start[0] ?? '', start[1] ?? '', start[2] ?? ''];
+  });
   const [currentSlot, setCurrentSlot] = useState<number>(0);
   const { sendMessage } = useBLE();
 
   const onSelectColor = useCallback(({ hex }: { hex: string }) => {
-    console.log('hex :>> ', hex);
-    const newColors = [...colors];
-    newColors[currentSlot] = hex;
-    setColors(newColors);
-    if (currentSlot < 2) {
+    const clean = normalizeHex(hex);
+    if (!clean) {
+      return;
+    }
+    const wasEmpty = colors[currentSlot] === '';
+    setColors(prev => prev.map((c, i) => (i === currentSlot ? clean : c)));
+    // Filling an empty slot moves on to the next one; re-picking a filled slot stays put.
+    if (wasEmpty && currentSlot < 2) {
       setCurrentSlot(currentSlot + 1);
     }
   }, [colors, currentSlot]);
 
-  const handleBack = useCallback(() => {
-    if (currentSlot > 0) {
-      const newColors = [...colors];
-      newColors[currentSlot] = '';
-      newColors[currentSlot - 1] = '';
-      setColors(newColors);
-      setCurrentSlot(currentSlot - 1);
+  const clearSlot = useCallback((index: number) => {
+    setColors(prev => prev.map((c, i) => (i === index ? '' : c)));
+    setCurrentSlot(index);
+  }, []);
+
+  const message = buildColorMessage(animation, colors);
+
+  const handleApply = useCallback(() => {
+    if (message) {
+      sendMessage(message);
+      onClose();
     }
-  }, [currentSlot, colors]);
-
-  const handleComplete = useCallback(() => {
-    console.log('title :>> ', title);
-    console.log('colors :>> ', colors);
-
-
-    const filteredColors = colors
-      .filter((color: string) => color !== '')
-      .map((color: string) => {
-        const cleanColor = color.replace('#', '');
-        return cleanColor.length === 8 ? cleanColor.slice(0, -2) : cleanColor;
-      });
-
-
-    // Send the colors to the device
-    const message = title.toLowerCase() + ':' + filteredColors.join(',');
-    console.log('message :>> ', message);
-    sendMessage(message);
-    onClose();
-  }, [colors, onClose, sendMessage, title]);
-
-
+  }, [message, onClose, sendMessage]);
 
   return (
-    <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-        <Text style={styles.modalTitle}>{title}</Text>
-        <View style={styles.colorSlotsContainer}>
-          {colors.map((color, index) => (
-            <View key={index} style={[styles.colorSlot, index === currentSlot && styles.activeSlot]}>
-              <View
-                style={[
-                  styles.colorPlaceholder,
-                  { backgroundColor: color || '#e5e7eb' },
-                ]}
-              />
-              <Text style={styles.colorSlotText}>
-                {index === 0 ? 'Required' : 'Optional'}
-              </Text>
-            </View>
-          ))}
-        </View>
-        <ColorPicker style={styles.colorPicker} value='red' onComplete={onSelectColor}>
-          <Panel3 centerChannel='hsl-saturation' style={styles.panel3} />
-          <Swatches
-            style={styles.swatch}
-            colors={['#FF0000', '#FFFF00', '#00FF00', '#00FFFF', '#0000FF', '#FF00FF', '#FF7F00', '#7F00FF']}
-          />
-
-          <Preview hideText hideInitialColor />
-        </ColorPicker>
-        <View style={styles.buttonContainer}>
-          {currentSlot > 0 && (
-            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-              <Text style={styles.buttonText}>Back</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>{title}</Text>
+      <View style={styles.slots}>
+        {colors.map((color, index) => {
+          const dotColor = color ? `#${color}` : 'transparent';
+          return (
+          <View key={index} style={styles.slotWrap}>
+            <TouchableOpacity
+              testID={`slot-${index}`}
+              accessibilityLabel={`Color ${index + 1}`}
+              onPress={() => setCurrentSlot(index)}
+              style={[styles.slot, index === currentSlot && styles.slotActive]}
+            >
+              <View style={[styles.dot, { backgroundColor: dotColor }]} />
             </TouchableOpacity>
-          )}
-          {currentSlot > 0 && (
-            <TouchableOpacity onPress={handleComplete} style={styles.completeButton}>
-              <Text style={styles.buttonText}>Submit</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <Text style={styles.closeButtonText}>Close</Text>
+            <Text style={styles.slotText}>{index === 0 ? 'Required' : 'Optional'}</Text>
+            {index > 0 && color !== '' && (
+              <TouchableOpacity
+                accessibilityLabel={`Clear color ${index + 1}`}
+                hitSlop={10}
+                onPress={() => clearSlot(index)}
+                style={styles.clear}
+              >
+                <Text style={styles.clearText}>✕</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          );
+        })}
+      </View>
+      <ColorPicker style={styles.picker} value="#ff6a00" onComplete={onSelectColor}>
+        <Panel3 centerChannel="hsl-saturation" style={styles.panel} />
+        <Swatches
+          style={styles.swatches}
+          colors={HALLOWEEN_PALETTE.map(c => `#${c}`)}
+        />
+        <Preview hideText hideInitialColor />
+      </ColorPicker>
+      <View style={styles.buttons}>
+        <TouchableOpacity testID="color-cancel" onPress={onClose} style={styles.button}>
+          <Text style={styles.buttonText}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          testID="color-apply"
+          onPress={handleApply}
+          disabled={!message}
+          style={[styles.button, styles.apply, !message && styles.disabled]}
+        >
+          <Text style={styles.buttonText}>Apply</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -104,88 +109,98 @@ const ColorPickerPage: React.FC<ColorPickerPageProps> = ({ title, onClose }) => 
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '90%',
-    padding: 20,
-    backgroundColor: '#0f172a',
-    borderRadius: 10,
+    paddingHorizontal: 24,
     alignItems: 'center',
   },
-  modalTitle: {
-    fontSize: 18,
-    color: '#ffffff',
-    marginBottom: 20,
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: TEXT,
+    marginBottom: 12,
   },
-  colorSlotsContainer: {
+  slots: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 12,
   },
-  colorSlot: {
+  slotWrap: {
     alignItems: 'center',
-    padding: 5,
   },
-  activeSlot: {
+  slot: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     borderWidth: 2,
-    borderColor: '#3b82f6',
-    borderRadius: 5,
+    borderColor: TILE_BORDER,
+    backgroundColor: TILE_BG,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  swatch: {
-    marginTop: 20,
-    marginBottom: 20,
+  slotActive: {
+    borderColor: ACCENT,
   },
-  colorPlaceholder: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginBottom: 5,
+  dot: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
-  colorSlotText: {
-    color: '#ffffff',
-    fontSize: 14,
+  slotText: {
+    color: TEXT_DIM,
+    fontSize: 12,
+    marginTop: 4,
   },
-  colorPicker: {
-    width: '100%',
+  clear: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearText: {
+    color: TEXT,
+    fontSize: 11,
+  },
+  picker: {
+    width: '85%',
     alignItems: 'center',
   },
-  panel3: {
+  panel: {
     width: '100%',
   },
-  buttonContainer: {
+  swatches: {
+    marginTop: 14,
+    marginBottom: 14,
+  },
+  buttons: {
     flexDirection: 'row',
-    marginTop: 20,
+    marginTop: 12,
   },
-  backButton: {
-    padding: 10,
-    backgroundColor: '#1e293b',
-    borderRadius: 5,
-    marginRight: 10,
+  button: {
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    marginHorizontal: 8,
+    borderRadius: 14,
+    backgroundColor: TILE_BG,
+    borderWidth: 1,
+    borderColor: TILE_BORDER,
   },
-  completeButton: {
-    padding: 10,
-    backgroundColor: '#1e293b',
-    borderRadius: 5,
+  apply: {
+    backgroundColor: 'rgba(249,115,22,0.35)',
+    borderColor: ACCENT,
+  },
+  disabled: {
+    opacity: 0.35,
   },
   buttonText: {
-    color: '#ffffff',
-  },
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#1e293b',
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: '#ffffff',
+    color: TEXT,
+    fontSize: 16,
   },
 });
 

@@ -1,74 +1,48 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useBLE } from '../providers/BLEProvider';
+import { MAX_BRIGHTNESS } from '../logic/bleState';
+import { ACCENT, TEXT_DIM } from './theme';
 
-interface BrightnessSliderProps {
-  initialBrightness?: number;
-}
-
-const BrightnessSlider: React.FC<BrightnessSliderProps> = ({ initialBrightness = 255 }) => {
-  const [brightness, setBrightness] = useState(initialBrightness);
-  const { sendMessage } = useBLE();
-  const debounceRef = useRef<NodeJS.Timeout>(); // Using NodeJS.Timeout type for compatibility with setTimeout in TypeScript
-
-  const handleValueChange = useCallback((value: number) => {
-    setBrightness(value);
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    // Set the timeout to send the message after 500ms of no changes
-    debounceRef.current = setTimeout(() => {
-      sendMessage(`brightness:${Math.floor(value)}`);
-    }, 100);
-  }, [sendMessage]);
-
-  // Clean up the timeout on component unmount
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, []);
+// Shared by both side panes: the value lives in BLEProvider, which also debounces the send.
+const BrightnessSlider = () => {
+  const { brightness, setBrightness } = useBLE();
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.label}>Adjust Brightness</Text> */}
+      <Text style={styles.icon}>☀</Text>
       <Slider
         style={styles.slider}
         minimumValue={0}
-        maximumValue={255 * .60}
+        maximumValue={MAX_BRIGHTNESS}
         step={1}
         value={brightness}
-        onValueChange={handleValueChange}
-        minimumTrackTintColor="#475569"
-        maximumTrackTintColor="#334155"
+        onValueChange={setBrightness}
+        minimumTrackTintColor={ACCENT}
+        maximumTrackTintColor="rgba(255,255,255,0.25)"
+        thumbTintColor="#ffffff"
+        accessibilityLabel="Brightness"
       />
-      {/* <Text style={styles.value}>{`Brightness: ${Math.floor(brightness)}`}</Text> */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 18,
   },
-  label: {
-    fontSize: 16,
-    color: '#000',
-    marginBottom: 10,
+  icon: {
+    color: TEXT_DIM,
+    fontSize: 20,
+    marginRight: 8,
   },
   slider: {
-    width: '100%',
-    height: 40,
-  },
-  value: {
-    fontSize: 14,
-    color: '#000',
-    marginTop: 10,
-    textAlign: 'center',
+    flex: 1,
+    height: 48,
   },
 });
 
